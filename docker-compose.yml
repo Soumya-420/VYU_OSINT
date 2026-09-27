@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # 1. FastAPI / Uvicorn Backend
+  vyu-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "127.0.0.1:8000:8000" # Secured via 127.0.0.1 for SSH tunneling (as per diagram)
+    networks:
+      - vyu-private-net
+    restart: unless-stopped
+
+  # 2. Nginx Frontend
+  vyu-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "127.0.0.1:8080:80" # Secured via 127.0.0.1 for SSH tunneling
+    networks:
+      - vyu-private-net
+    restart: unless-stopped
+
+  # 3. PostgreSQL 16 + PostGIS (Evidence Store)
+  vyu-postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: vyu_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securepassword123}
+      POSTGRES_DB: vyu_evidence
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - vyu-private-net
+    restart: unless-stopped
+
+  # 4. Redis (Cache + Coordination)
+  vyu-redis:
+    image: redis:alpine
+    networks:
+      - vyu-private-net
+    restart: unless-stopped
+
+  # 5. MinIO (Reports + Artifacts S3 store)
+  vyu-minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: vyu_admin
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-securepassword123}
+    volumes:
+      - minio_data:/data
+    networks:
+      - vyu-private-net
+    restart: unless-stopped
+
+# Secure Private Docker Network (as per 'SECURITY' section in diagram)
+networks:
+  vyu-private-net:
+    driver: bridge
+
+# Persistent Volumes
+volumes:
+  pg_data:
+  minio_data:

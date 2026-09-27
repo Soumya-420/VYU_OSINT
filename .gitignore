@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Secrets — NEVER commit these
+.env
+*.env
+*.key
+
+# Pytest
+.pytest_cache/
+
+# Logs
+*.log
+visitor_logs/

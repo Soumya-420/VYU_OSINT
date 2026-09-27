@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYU — Continuous OSINT &amp; Personal Intelligence Interface</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="brand">
+            <i class="fa-solid fa-satellite-dish brand-icon"></i>
+            <div>
+                <h1>VYU — CONTINUOUS OSINT &amp; PERSONAL INTELLIGENCE</h1>
+                <span class="subtext">24/7 Live Ingestion · Personal User Trackers · Ask VYU AI</span>
+            </div>
+        </div>
+        <div class="system-status">
+            <span class="status-badge active pulse"><i class="fa-solid fa-circle"></i> 🔴 LIVE</span>
+            <span class="status-badge active"><i class="fa-solid fa-circle"></i> RSS</span>
+            <span class="status-badge active"><i class="fa-solid fa-circle"></i> GDELT</span>
+            <span class="status-badge active"><i class="fa-solid fa-circle"></i> Hazards</span>
+            <span class="status-badge active"><i class="fa-solid fa-circle"></i> Open-Meteo</span>
+            <span class="status-badge active"><i class="fa-solid fa-circle"></i> X/Twitter</span>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="card personal-tracker-card" style="border-left:4px solid var(--success-color);">
+                <h3><i class="fa-solid fa-user-gear" style="color:var(--success-color);"></i> Personal Mode Tracker</h3>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">Add your own city, topic, or RSS link to track live:</p>
+                <div class="form-group" style="margin-bottom:6px;">
+                    <input type="text" id="personal-topic-input" placeholder="e.g. Kolkata Weather or Cyber Alerts" style="font-size:0.8rem; padding:6px 10px;" />
+                </div>
+                <button id="btn-add-personal" class="btn btn-primary" style="background-color:var(--success-color); font-size:0.8rem; padding:6px;"><i class="fa-solid fa-plus-circle"></i> Track My Personal Topic</button>
+                <div id="personal-sources-list" style="margin-top:8px; font-size:0.75rem;"></div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-sliders"></i> Ingestion Controls</h3>
+                <button id="btn-collect" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> Trigger Instant Collection</button>
+                <button id="btn-open-capture" class="btn btn-secondary"><i class="fa-solid fa-file-circle-plus"></i> Capture Live Document</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-layer-group"></i> Active Feeds Filter</h3>
+                <ul class="filter-list">
+                    <li class="filter-item active" data-filter="all">All Captured Documents</li>
+                    <li class="filter-item" data-filter="rss">RSS News Feeds</li>
+                    <li class="filter-item" data-filter="gdelt">GDELT Conflict Stream</li>
+                    <li class="filter-item" data-filter="hazard">GDACS &amp; EONET Hazards</li>
+                    <li class="filter-item" data-filter="weather">Open-Meteo Weather</li>
+                    <li class="filter-item" data-filter="twitter">X / Twitter Trends</li>
+                    <li class="filter-item" data-filter="personal_weather">🎯 My Weather Trackers</li>
+                    <li class="filter-item" data-filter="personal_news">🎯 My News Trackers</li>
+                    <li class="filter-item" data-filter="custom">Custom Live Captures</li>
+                </ul>
+            </div>
+
+            <div class="card metrics-card">
+                <h3><i class="fa-solid fa-chart-line"></i> Engine Status</h3>
+                <div class="metric-row"><span>Background Collector:</span><strong class="text-success">🔴 ACTIVE (45s)</strong></div>
+                <div class="metric-row"><span>Ask VYU AI:</span><strong class="text-success">CHATBOT v3.0</strong></div>
+                <div class="metric-row"><span>Live AI Risk Predictor:</span><strong class="text-primary">100% AUTOMATED</strong></div>
+                <div class="metric-row"><span>Personal User Mode:</span><strong class="text-success">ENABLED</strong></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <section class="main-content">
+
+            <!-- CHATBOT PANEL -->
+            <div class="chatbot-panel">
+                <div class="chatbot-header">
+                    <div class="chatbot-avatar-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+                    <div class="chatbot-header-text">
+                        <div class="chatbot-title">Ask VYU — OSINT Intelligence AI</div>
+                        <div class="chatbot-subtitle">RAG-Powered · Live Data · Full-Text Analysis</div>
+                    </div>
+                    <span class="chatbot-live-pill"><span class="pulse-dot"></span>LIVE</span>
+                    <button id="btn-clear-chat" class="chatbot-clear-btn" title="Clear conversation"><i class="fa-solid fa-broom"></i> Clear</button>
+                </div>
+
+                <div class="chatbot-messages" id="chatbot-messages">
+                    <!-- Welcome message -->
+                    <div class="chat-msg ai">
+                        <div class="chat-ai-avatar"><i class="fa-solid fa-robot"></i></div>
+                        <div class="chat-bubble ai-bubble">
+                            <p>👋 Hello! I'm <strong>VYU AI</strong>, your real-time OSINT intelligence assistant.</p>
+                            <p style="margin-top:8px; color:#9ca3af; font-size:0.88rem;">I continuously scan global news, conflict streams, hazard alerts, weather, and cyber threats. Try asking me:</p>
+                            <div class="chat-suggestions">
+                                <button class="chat-suggest-btn" onclick="fillAndSend('What are the latest global conflict updates?')">🌍 Latest global conflict updates</button>
+                                <button class="chat-suggest-btn" onclick="fillAndSend('Any natural disaster or hazard alerts today?')">🌪 Natural disaster alerts today</button>
+                                <button class="chat-suggest-btn" onclick="fillAndSend('Summarize recent cybersecurity threats')">🔐 Cybersecurity threat summary</button>
+                                <button class="chat-suggest-btn" onclick="fillAndSend('What is the current weather in Kolkata?')">🌦 Weather in Kolkata</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chatbot-input-wrap">
+                    <div class="chatbot-input-row">
+                        <textarea id="rag-input" class="chatbot-textarea" rows="1" placeholder="Ask VYU about live news, weather, hazards, cyber threats..."></textarea>
+                        <button id="btn-ask" class="chatbot-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                    <div class="chatbot-hint">VYU AI answers based exclusively on real-time collected OSINT data · Press Enter to send</div>
+                </div>
+            </div>
+
+            <!-- Global OSINT Map -->
+            <div class="card" style="margin-top:20px;">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-earth-americas"></i> Live Geospatial Intelligence Map</h2>
+                    <span class="badge badge-success" id="map-status"><i class="fa-solid fa-circle-check"></i> Mapping Active</span>
+                </div>
+                <div id="osint-map" style="height: 350px; width: 100%; border-radius: 8px; border: 1px solid var(--border-color); z-index: 1;"></div>
+            </div>
+
+            <!-- Evidence Feed + Inspection -->
+            <div class="grid-2col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-satellite"></i> Live Continuous Evidence Feed</h2>
+                        <span id="doc-count-badge" class="badge">0 Documents</span>
+                    </div>
+                    <div id="document-feed" class="document-feed"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-pie"></i> Document Inspection &amp; Live Predictions</h2>
+                    </div>
+                    <div id="prediction-detail" class="prediction-detail">
+                        <div class="placeholder-text">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            <p>Select a document from the live feed to view full captured text, AI threat predictions, escalation index, and forecast scenarios.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Capture Modal -->
+    <div id="capture-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fa-solid fa-file-import"></i> Capture New Live Document</h2>
+            <form id="capture-form">
+                <div class="form-group">
+                    <label for="doc-title">Document Title</label>
+                    <input type="text" id="doc-title" required placeholder="e.g. Regional Subsea Fiber Optic Cable Telemetry Interruption" />
+                </div>
+                <div class="form-group">
+                    <label for="doc-feed-type">Feed Type</label>
+                    <select id="doc-feed-type">
+                        <option value="custom">Custom Live Capture</option>
+                        <option value="rss">RSS Feed</option>
+                        <option value="gdelt">GDELT Event</option>
+                        <option value="hazard">Hazard Alert</option>
+                        <option value="weather">Weather Watchpoint</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doc-location">Location / Region</label>
+                    <input type="text" id="doc-location" placeholder="e.g. Malacca Strait Watchpoint" />
+                </div>
+                <div class="form-group">
+                    <label for="doc-url">Source URL (Optional)</label>
+                    <input type="url" id="doc-url" placeholder="https://example.org/report-102" />
+                </div>
+                <div class="form-group">
+                    <label for="doc-text">Full Document Text</label>
+                    <textarea id="doc-text" rows="6" required placeholder="Paste full article / intelligence document text here..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-bolt"></i> Capture &amp; Generate Live Prediction</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js?v=20260927"></script>
+</body>
+</html>

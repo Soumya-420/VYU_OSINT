@@ -1,0 +1,17 @@
+[Unit]
+Description=VYU Continuous OSINT Platform
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/vyu
+# Start the full container stack
+ExecStart=/usr/bin/docker compose up -d
+# Stop the stack securely on shutdown
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
