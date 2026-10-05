@@ -72,7 +72,7 @@ No manual refreshes. No static data. Everything is live.
 | Frontend | Vanilla JS + Leaflet.js |
 | Reverse Proxy | Nginx |
 | Containerisation | Docker + Docker Compose |
-| Deployment | Render / Railway / Self-hosted |
+| Deployment | Railway / Self-hosted |
 
 ---
 
