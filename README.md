@@ -91,12 +91,6 @@ cd vyu
 
 ### 2. Configure environment
 
-Copy and edit the env file:
-
-```bash
-cp .env .env.local
-```
-
 Key variables:
 
 ```env
@@ -211,18 +205,6 @@ vyu/
 
 ---
 
-## Admin Access
-
-A hidden, key-protected endpoint logs all visitor IPs to PostgreSQL:
-
-```
-GET /api/v1/admin/visitors
-Header: X-Admin-Key: <your VYU_ADMIN_KEY>
-```
-
-Set `VYU_ADMIN_KEY` in your environment. Never expose this key publicly.
-
----
 
 ## License
 
