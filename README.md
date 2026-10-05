@@ -142,15 +142,6 @@ Interactive docs available at `/docs` (Swagger UI) and `/redoc`.
 
 ## Deployment
 
-### Render
-
-The `render.yaml` is pre-configured. Push to your connected repo and Render handles the rest.
-
-```yaml
-buildCommand: pip install -r requirements.txt
-startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
-```
-
 ### Railway
 
 The `railway.json` is pre-configured with Nixpacks builder and auto-restart on failure.
